@@ -50,6 +50,8 @@ clear, clc
 %%% Make any necessary modifications to the code in this section for Part 1
 
 % Load the audio file and extract data
+% This is a small change
+
 [audio_signal, sampling_frequency] = audioread('CanYouFeelIt.wav');
 leftChannel = audio_signal(:,1);
 rightChannel = audio_signal(:,2);											
