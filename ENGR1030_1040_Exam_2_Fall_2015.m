@@ -50,16 +50,22 @@ clear, clc
 %%% Make any necessary modifications to the code in this section for Part 1
 
 % Load the audio file and extract data
-% This clearly wont break something It should have been a comment!
-
-[audio_signal, sampling_frequency] = audioread('CanYouFeelIt.wav');
+fileTypes = [{'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
+    '*.aifc';'*.mp4';'*.m4a';}];
+filename = uigetfile(fileTypes,'Pick an AUDIO file')
+[audio_signal, sampling_frequency] = audioread(filename);
 leftChannel = audio_signal(:,1);
 rightChannel = audio_signal(:,2);											
 x_len = length(audio_signal);
 
+
 % Downsample the original input
-if 0
-	downsampling_factor = 2;
+b = menu('would you like to downsample','yes','no')
+
+if b == 1
+    c = menu('What factor would you like to downsample by','1','2','3')
+    downsampling_factor = b;
+	%downsampling_factor = 2;
     leftChannel = leftChannel(1:downsampling_factor:x_len);
     rightChannel = rightChannel(1:downsampling_factor:x_len);
     audio_signal = [leftChannel'; rightChannel'];
