@@ -62,9 +62,13 @@ filename = uigetfile(fileTypes,'Pick an AUDIO file');
 %play file original file if wanted 
 %gong = audioplayer(audio_signal, sampling_frequency);
 %play(gong);
+[length_audio,channels]=size(audio_signal)
 
 leftChannel = audio_signal(:,1);
-rightChannel = audio_signal(:,2);											
+if channels > 1;
+rightChannel = audio_signal(:,2);
+else rightChannel = audio_signal(:,1);
+end
 x_len = length(audio_signal);
 
 
@@ -294,10 +298,15 @@ end
 % Finally, convert back to time-domain
 newLeftChannel = ifft(filteredLeftChannel, N);
 newRightChannel = ifft(filteredRightChannel, N);
-filtered_audio = 235*[real(newLeftChannel) real(newRightChannel)];
-
-
-filtered = audioplayer(filtered_audio, sampling_frequency);
+filtered_audio = [real(newLeftChannel) real(newRightChannel)];
+if channels == 2;
+filtered_audioplay = (max(audio_signal)/max(filtered_audio))*filtered_audio;
+else if channels == 1
+ filtered_audioplay = (max(audio_signal)/max(filtered_audio(:,1)))*filtered_audio;   
+    else
+        display('what kind of audio file is this I did not code for this')
+end
+filtered = audioplayer(filtered_audioplay, sampling_frequency);
 play(filtered);
 % Write the filtered audio signal back to a file
 %audiowrite('band7.wav', x_sig, freq);
@@ -319,7 +328,7 @@ ylabel('Signal Magnitude')
 
  runfile = menu('would you like to run the program again','no','yes');
 end
-
+end
 %% Part 4: Matrix Algebra
 
 % a) (10 points) Using the linear equations in the handout containing the
