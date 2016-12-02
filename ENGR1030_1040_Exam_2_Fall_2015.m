@@ -46,24 +46,34 @@ clear, clc
 %%% Add your user input code for Part 1 in this section
 
 %%% end
-
+runfile = 5;
 %%% Make any necessary modifications to the code in this section for Part 1
-
+while runfile ~=1;
 % Load the audio file and extract data
 fileTypes = [{'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
     '*.aifc';'*.mp4';'*.m4a';}];
-filename = uigetfile(fileTypes,'Pick an AUDIO file')
+filename = uigetfile(fileTypes,'Pick an AUDIO file');
+
+
+
 [audio_signal, sampling_frequency] = audioread(filename);
+
+
+%play file original file if wanted 
+%gong = audioplayer(audio_signal, sampling_frequency);
+%play(gong);
+
 leftChannel = audio_signal(:,1);
 rightChannel = audio_signal(:,2);											
 x_len = length(audio_signal);
 
 
+
 % Downsample the original input
-b = menu('would you like to downsample','yes','no')
+b = menu('would you like to downsample','yes','no');
 
 if b == 1
-    c = menu('What factor would you like to downsample by','1','2','3')
+    c = menu('What factor would you like to downsample by','1','2','3');
     downsampling_factor = b;
 	%downsampling_factor = 2;
     leftChannel = leftChannel(1:downsampling_factor:x_len);
@@ -284,7 +294,11 @@ end
 % Finally, convert back to time-domain
 newLeftChannel = ifft(filteredLeftChannel, N);
 newRightChannel = ifft(filteredRightChannel, N);
-filtered_audio = [real(newLeftChannel) real(newRightChannel)];
+filtered_audio = 235*[real(newLeftChannel) real(newRightChannel)];
+
+
+filtered = audioplayer(filtered_audio, sampling_frequency);
+play(filtered);
 % Write the filtered audio signal back to a file
 %audiowrite('band7.wav', x_sig, freq);
 
@@ -303,6 +317,8 @@ title('Filtered Original Right Channel')
 xlabel('Number of Samples')
 ylabel('Signal Magnitude')
 
+ runfile = menu('would you like to run the program again','no','yes');
+end
 
 %% Part 4: Matrix Algebra
 
