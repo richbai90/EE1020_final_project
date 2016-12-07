@@ -50,8 +50,8 @@ runfile = 5;
 %%% Make any necessary modifications to the code in this section for Part 1
 while runfile ~=1;
 % Load the audio file and extract data
-fileTypes = [{'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
-    '*.aifc';'*.mp4';'*.m4a';}];
+fileTypes = {'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
+    '*.aifc';'*.mp4';'*.m4a';};
 filename = uigetfile(fileTypes,'Pick an AUDIO file');
 
 
@@ -62,7 +62,7 @@ filename = uigetfile(fileTypes,'Pick an AUDIO file');
 %play file original file if wanted 
 %gong = audioplayer(audio_signal, sampling_frequency);
 %play(gong);
-[length_audio,channels]=size(audio_signal)
+[length_audio,channels]=size(audio_signal);
 
 leftChannel = audio_signal(:,1);
 if channels > 1;
@@ -299,12 +299,14 @@ end
 newLeftChannel = ifft(filteredLeftChannel, N);
 newRightChannel = ifft(filteredRightChannel, N);
 filtered_audio = [real(newLeftChannel) real(newRightChannel)];
+[length_audio,channels]=size(audio_signal);
 if channels == 2;
 filtered_audioplay = (max(audio_signal)/max(filtered_audio))*filtered_audio;
 else if channels == 1
  filtered_audioplay = (max(audio_signal)/max(filtered_audio(:,1)))*filtered_audio;   
     else
         display('what kind of audio file is this I did not code for this')
+    end
 end
 filtered = audioplayer(filtered_audioplay, sampling_frequency);
 play(filtered);
@@ -327,7 +329,7 @@ xlabel('Number of Samples')
 ylabel('Signal Magnitude')
 
  runfile = menu('would you like to run the program again','no','yes');
-end
+
 end
 %% Part 4: Matrix Algebra
 
