@@ -78,7 +78,7 @@ b = menu('would you like to downsample','yes','no');
 
 if b == 1
     c = menu('What factor would you like to downsample by','1','2','3');
-    downsampling_factor = b;
+    downsampling_factor = c;
 	%downsampling_factor = 2;
     leftChannel = leftChannel(1:downsampling_factor:x_len);
     rightChannel = rightChannel(1:downsampling_factor:x_len);
@@ -187,7 +187,8 @@ end
 % Compute the wavelet function, determine its FFT and center frequency
 a = 1;			% dialation factor, 1 = mother wavelet
 
-option = 1;		%select a particular wavelet function
+option = menu('What wavelet would you like to use? ','Haar','Mexican Hat','Real Valued Morlet');
+		%select a particular wavelet function
 switch option
 	case 1	%Haar Wavelet
         t = 0:(1/sampling_frequency):1;
