@@ -46,18 +46,40 @@ clear, clc
 %%% Add your user input code for Part 1 in this section
 
 %%% end
-
+runfile = 5;
 %%% Make any necessary modifications to the code in this section for Part 1
-
+while runfile ~=1;
 % Load the audio file and extract data
-[audio_signal, sampling_frequency] = audioread('CanYouFeelIt.wav');
+fileTypes = {'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
+    '*.aifc';'*.mp4';'*.m4a';};
+filename = uigetfile(fileTypes,'Pick an AUDIO file');
+
+
+
+[audio_signal, sampling_frequency] = audioread(filename);
+
+
+%play file original file if wanted 
+%gong = audioplayer(audio_signal, sampling_frequency);
+%play(gong);
+[length_audio,channels]=size(audio_signal);
+
 leftChannel = audio_signal(:,1);
-rightChannel = audio_signal(:,2);											
+if channels > 1;
+rightChannel = audio_signal(:,2);
+else rightChannel = audio_signal(:,1);
+end
 x_len = length(audio_signal);
 
+
+
 % Downsample the original input
-if 0
-	downsampling_factor = 2;
+b = menu('would you like to downsample','yes','no');
+
+if b == 1
+    c = menu('What factor would you like to downsample by','1','2','3');
+    downsampling_factor = c;
+	%downsampling_factor = 2;
     leftChannel = leftChannel(1:downsampling_factor:x_len);
     rightChannel = rightChannel(1:downsampling_factor:x_len);
     audio_signal = [leftChannel'; rightChannel'];
@@ -165,7 +187,8 @@ end
 % Compute the wavelet function, determine its FFT and center frequency
 a = 1;			% dialation factor, 1 = mother wavelet
 
-option = 1;		%select a particular wavelet function
+option = menu('What wavelet would you like to use? ','Haar','Mexican Hat','Real Valued Morlet');
+		%select a particular wavelet function
 switch option
 	case 1	%Haar Wavelet
         t = 0:(1/sampling_frequency):1;
@@ -277,6 +300,17 @@ end
 newLeftChannel = ifft(filteredLeftChannel, N);
 newRightChannel = ifft(filteredRightChannel, N);
 filtered_audio = [real(newLeftChannel) real(newRightChannel)];
+[length_audio,channels]=size(audio_signal);
+if channels == 2;
+filtered_audioplay = (max(audio_signal)/max(filtered_audio))*filtered_audio;
+else if channels == 1
+ filtered_audioplay = (max(audio_signal)/max(filtered_audio(:,1)))*filtered_audio;   
+    else
+        display('what kind of audio file is this I did not code for this')
+    end
+end
+filtered = audioplayer(filtered_audioplay, sampling_frequency);
+play(filtered);
 % Write the filtered audio signal back to a file
 %audiowrite('band7.wav', x_sig, freq);
 
@@ -295,7 +329,9 @@ title('Filtered Original Right Channel')
 xlabel('Number of Samples')
 ylabel('Signal Magnitude')
 
+ runfile = menu('would you like to run the program again','no','yes');
 
+end
 %% Part 4: Matrix Algebra
 
 % a) (10 points) Using the linear equations in the handout containing the
