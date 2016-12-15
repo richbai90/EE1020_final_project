@@ -180,6 +180,46 @@ end
 %%% Add your user input code for Part 3 in this section
 
 
+% GUI menu to pick a wavelet to use
+
+Wavepick = menu('Choose a wavelet to apply ','Haar Wavelet',...
+'Mexican Hat Wavelet','Morlet Wavelet','Wavelet Number 4');
+
+switch Wavepick
+    
+    case 1
+        %Haar Wavelet
+        option = 1;
+        
+    case 2
+        %Mexican Hat Wavelet
+        option = 2;
+        
+    case 3
+        %Morlet Wavelet
+        option = 3;
+        
+    case 4 
+        %Wavelet Number 4
+        option = 4;
+        
+    %case 5
+        % No wavelet
+        %option = 5
+% add another string at the end for commented out case 5 if an option for 
+% no wavelet is implemented
+    case 0
+        % dialog box is exited without making a choice
+        % default to Morlet Wavelet
+        option = 3;
+   casozero = msgbox('No choice made. Defaulting to Morlet Wavelet');
+    otherwise
+        
+        disp('You broke my code. How inconsiderate!')
+end
+    
+
+
 %%% end
 
 %%% Make any necessary modifications to the code in this section for Part 3
@@ -187,8 +227,7 @@ end
 % Compute the wavelet function, determine its FFT and center frequency
 a = 1;			% dialation factor, 1 = mother wavelet
 
-option = menu('What wavelet would you like to use? ','Haar','Mexican Hat','Real Valued Morlet');
-		%select a particular wavelet function
+
 switch option
 	case 1	%Haar Wavelet
         t = 0:(1/sampling_frequency):1;
@@ -311,8 +350,30 @@ else if channels == 1
 end
 filtered = audioplayer(filtered_audioplay, sampling_frequency);
 play(filtered);
-% Write the filtered audio signal back to a file
-%audiowrite('band7.wav', x_sig, freq);
+
+% So we came up with two different ways to convert and play the audio   
+% comment 'play(filtered)' above and uncomment the three lines of code below 
+% to hear the other method (yes they turned out different) I'm not sure 
+% which one is more accurate but I assume it's not mine, it seems too quite
+% for the Haar wavelet.
+
+
+% Write filtered audio signal back to an audio file then play
+
+
+   % Convert to audio file
+
+%audiowrite('filtered_audio.wav',filtered_audio, sampling_frequency)
+
+   % read converted file
+
+%[soundplay,spr] = audioread('filtered_audio.wav');
+
+   % Play sound 
+
+%sound(soundplay,spr);
+
+
 
 % plot the filtered audio sequence for comparison to the original audio
 figure
