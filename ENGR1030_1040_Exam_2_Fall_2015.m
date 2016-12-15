@@ -183,7 +183,12 @@ end
 % GUI menu to pick a wavelet to use
 
 Wavepick = menu('Choose a wavelet to apply ','Haar Wavelet',...
-'Mexican Hat Wavelet','Morlet Wavelet','Wavelet Number 4');
+'Mexican Hat Wavelet','Morlet Wavelet','Poisson Wavelet 4', 'Real Shannon Wavelet' );
+
+%Rich Gordon -- add an option to show which graphs you'd like to see
+show_wavelet = input('would you like to see the original wavelet waveform? y/n');
+show_wavelet_dft = input('would you like to see the original wavelet dft? y/n');
+
 
 switch Wavepick
     
@@ -203,11 +208,9 @@ switch Wavepick
         %Wavelet Number 4
         option = 4;
         
-    %case 5
+   case 5
         % No wavelet
-        %option = 5
-% add another string at the end for commented out case 5 if an option for 
-% no wavelet is implemented
+        option = 5;
     case 0
         % dialog box is exited without making a choice
         % default to Morlet Wavelet
@@ -233,7 +236,7 @@ switch option
         t = 0:(1/sampling_frequency):1;
 		haar = abs(a)/2 - (0:(1/sampling_frequency):abs(a));
 		haar = sign(a)*sign(haar)/sqrt(abs(a));
-        if 0
+        if show_wavelet == 'y'
             figure
             plot(t,haar)
             grid
@@ -241,7 +244,7 @@ switch option
         end
         haar_fft = fft(haar, N);
         haar_mag = abs(haar_fft);
-        if 1
+        if show_wavelet_dft == 'y'
             figure
             semilogx(faxis, haar_mag(1:(N/2)))
             title('DFT of Haar Mother Wavelet')
@@ -255,7 +258,7 @@ switch option
 	case 2	%Mexican Hat Wavelet
 		t = 0:(1/sampling_frequency):10;		%time axis for the wavelet function
         mex_hat = 1/sqrt(a)*(1 - 2*(5*t/a).^2).*exp(-(5*t/a).^2);
-        if 0		%1 = show plot of mother wavelet
+        if show_wavelet == 'y'		%1 = show plot of mother wavelet
             figure
             plot(t,mex_hat)
             grid
@@ -263,7 +266,7 @@ switch option
         end
         mex_fft = fft(mex_hat, N);
         mex_mag = abs(mex_fft);
-        if 1
+        if show_wavelet_dft == 'y'
             figure
             semilogx(faxis, mex_mag(1:(N/2)))
             title('DFT of Mexican Hat Mother Wavelet')
@@ -278,7 +281,7 @@ switch option
         a = 0.88319778442383/15000;	%used for generating wavelet functions
         t = 0:(1/sampling_frequency):10;
         morlet = 1/sqrt(a)*exp(-0.754*((t/a).*2)).*cos((pi*sqrt(2/log(2))).*(t/a));
-        if 0
+        if show_wavelet == 'y'
             figure
             plot(t,morlet)
             grid
@@ -286,14 +289,14 @@ switch option
         end
         mor_fft = fft(morlet, N);
         mor_mag = abs(mor_fft);		%normalize the sequence
-        if 0
+        if show_wavelet_dft == 'y'
             figure
             semilogx(faxis, mor_mag(1:(N/2)))
             title('DFT of Morlet Mother Wavelet')
             xlabel('Frequency (Hz)')
             grid
         end
-        if 1
+        if show_wavelet_dft == 'y'
             mor_fft1 = mor_fft / max(mor_fft);
             mor_mag = abs(mor_fft1);
             figure
@@ -305,6 +308,54 @@ switch option
         [val, int] = max(mor_mag(1:(N/2)));
         center_frequency = faxis(int);
         w_fft = mor_fft';
+        w_fft = w_fft / max(w_fft);
+        case 4 %Poisson Wavelet -- Rich Baird
+        %M(t)= 1/pi * (1-t^2)/(1+t^2)^2
+        t = 0:(1/sampling_frequency):1;
+		% apply function to every t
+        poisson = 1/pi .* (1-t.^2) ./ (1+t.^2).^2;
+        if show_wavelet == 'y'
+            figure
+            plot(t,poisson)
+            grid
+            title('Poisson Mother Wavelet')
+        end
+        poisson_fft = fft(poisson, N);
+        poisson_mag = abs(poisson_fft);
+        if show_wavelet_dft == 'y'
+            figure
+            semilogx(faxis, poisson_mag(1:(N/2)))
+            title('DFT of Poisson Mother Wavelet')
+            xlabel('Frequency (Hz)')
+            grid
+        end
+        [val, int] = max(poisson_mag(1:(N/2)));
+        center_frequency = faxis(int);   
+        w_fft = poisson_fft';
+        w_fft = w_fft / max(w_fft);
+    case 5 %Real Shannon Wavelet -- Rich Baird
+        %M(t)= sinc(t/2) * cos(3pit/2)
+        t = 0:(1/sampling_frequency):1;
+		% apply function to every t
+        sha = sinc(t./2) .* cos((3 .* pi .* t)./2); 
+        if show_wavelet == 'y'
+            figure
+            plot(t,sha)
+            grid
+            title('Real Shannon Mother Wavelet')
+        end
+        sha_fft = fft(sha, N);
+        sha_mag = abs(sha_fft);
+        if show_wavelet_dft == 'y'
+            figure
+            semilogx(faxis, sha_mag(1:(N/2)))
+            title('DFT of Real Shannon Mother Wavelet')
+            xlabel('Frequency (Hz)')
+            grid
+        end
+        [val, int] = max(sha_mag(1:(N/2)));
+        center_frequency = faxis(int);   
+        w_fft = sha_fft';
         w_fft = w_fft / max(w_fft);
     otherwise
 end
