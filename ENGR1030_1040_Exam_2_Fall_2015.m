@@ -46,40 +46,20 @@ clear, clc
 %%% Add your user input code for Part 1 in this section
 
 %%% end
-runfile = 5;
+
 %%% Make any necessary modifications to the code in this section for Part 1
-while runfile ~=1;
+
 % Load the audio file and extract data
-fileTypes = {'*.mp3';'*.wav';'*.wma';'*.ogg';'*.flac';'*.au';'*.aiff';'*.aif';
-    '*.aifc';'*.mp4';'*.m4a';};
-filename = uigetfile(fileTypes,'Pick an AUDIO file');
+% This is a small change
 
-
-
-[audio_signal, sampling_frequency] = audioread(filename);
-
-
-%play file original file if wanted 
-%gong = audioplayer(audio_signal, sampling_frequency);
-%play(gong);
-[length_audio,channels]=size(audio_signal);
-
+[audio_signal, sampling_frequency] = audioread('CanYouFeelIt.wav');
 leftChannel = audio_signal(:,1);
-if channels > 1;
-rightChannel = audio_signal(:,2);
-else rightChannel = audio_signal(:,1);
-end
+rightChannel = audio_signal(:,2);											
 x_len = length(audio_signal);
 
-
-
 % Downsample the original input
-b = menu('would you like to downsample','yes','no');
-
-if b == 1
-    c = menu('What factor would you like to downsample by','1','2','3');
-    downsampling_factor = c;
-	%downsampling_factor = 2;
+if 0
+	downsampling_factor = 2;
     leftChannel = leftChannel(1:downsampling_factor:x_len);
     rightChannel = rightChannel(1:downsampling_factor:x_len);
     audio_signal = [leftChannel'; rightChannel'];
@@ -180,46 +160,6 @@ end
 %%% Add your user input code for Part 3 in this section
 
 
-% GUI menu to pick a wavelet to use
-
-Wavepick = menu('Choose a wavelet to apply ','Haar Wavelet',...
-'Mexican Hat Wavelet','Morlet Wavelet','Wavelet Number 4');
-
-switch Wavepick
-    
-    case 1
-        %Haar Wavelet
-        option = 1;
-        
-    case 2
-        %Mexican Hat Wavelet
-        option = 2;
-        
-    case 3
-        %Morlet Wavelet
-        option = 3;
-        
-    case 4 
-        %Wavelet Number 4
-        option = 4;
-        
-    %case 5
-        % No wavelet
-        %option = 5
-% add another string at the end for commented out case 5 if an option for 
-% no wavelet is implemented
-    case 0
-        % dialog box is exited without making a choice
-        % default to Morlet Wavelet
-        option = 3;
-   casozero = msgbox('No choice made. Defaulting to Morlet Wavelet');
-    otherwise
-        
-        disp('You broke my code. How inconsiderate!')
-end
-    
-
-
 %%% end
 
 %%% Make any necessary modifications to the code in this section for Part 3
@@ -227,7 +167,7 @@ end
 % Compute the wavelet function, determine its FFT and center frequency
 a = 1;			% dialation factor, 1 = mother wavelet
 
-
+option = 5;		%select a particular wavelet function
 switch option
 	case 1	%Haar Wavelet
         t = 0:(1/sampling_frequency):1;
@@ -306,6 +246,54 @@ switch option
         center_frequency = faxis(int);
         w_fft = mor_fft';
         w_fft = w_fft / max(w_fft);
+    case 4 %Poisson Wavelet -- Rich Baird
+        %M(t)= 1/pi * (1-t^2)/(1+t^2)^2
+        t = 0:(1/sampling_frequency):1;
+		% apply function to every t
+        poisson = 1/pi .* (1-t.^2) ./ (1+t.^2).^2;
+        if 0
+            figure
+            plot(t,poisson)
+            grid
+            title('Poisson Mother Wavelet')
+        end
+        poisson_fft = fft(poisson, N);
+        poisson_mag = abs(poisson_fft);
+        if 1
+            figure
+            semilogx(faxis, poisson_mag(1:(N/2)))
+            title('DFT of Poisson Mother Wavelet')
+            xlabel('Frequency (Hz)')
+            grid
+        end
+        [val, int] = max(poisson_mag(1:(N/2)));
+        center_frequency = faxis(int);   
+        w_fft = poisson_fft';
+        w_fft = w_fft / max(w_fft);
+    case 5 %Real Shannon Wavelet -- Rich Baird
+        %M(t)= sinc(t/2) * cos(3pit/2)
+        t = 0:(1/sampling_frequency):1;
+		% apply function to every t
+        sha = sinc(t./2) .* cos((3 .* pi .* t)./2); 
+        if 0
+            figure
+            plot(t,sha)
+            grid
+            title('Real Shannon Mother Wavelet')
+        end
+        sha_fft = fft(sha, N);
+        sha_mag = abs(sha_fft);
+        if 1
+            figure
+            semilogx(faxis, sha_mag(1:(N/2)))
+            title('DFT of Real Shannon Mother Wavelet')
+            xlabel('Frequency (Hz)')
+            grid
+        end
+        [val, int] = max(sha_mag(1:(N/2)));
+        center_frequency = faxis(int);   
+        w_fft = sha_fft';
+        w_fft = w_fft / max(w_fft);
     otherwise
 end
 
@@ -339,41 +327,8 @@ end
 newLeftChannel = ifft(filteredLeftChannel, N);
 newRightChannel = ifft(filteredRightChannel, N);
 filtered_audio = [real(newLeftChannel) real(newRightChannel)];
-[length_audio,channels]=size(audio_signal);
-if channels == 2;
-filtered_audioplay = (max(audio_signal)/max(filtered_audio))*filtered_audio;
-else if channels == 1
- filtered_audioplay = (max(audio_signal)/max(filtered_audio(:,1)))*filtered_audio;   
-    else
-        display('what kind of audio file is this I did not code for this')
-    end
-end
-filtered = audioplayer(filtered_audioplay, sampling_frequency);
-play(filtered);
-
-% So we came up with two different ways to convert and play the audio   
-% comment 'play(filtered)' above and uncomment the three lines of code below 
-% to hear the other method (yes they turned out different) I'm not sure 
-% which one is more accurate but I assume it's not mine, it seems too quite
-% for the Haar wavelet.
-
-
-% Write filtered audio signal back to an audio file then play
-
-
-   % Convert to audio file
-
-%audiowrite('filtered_audio.wav',filtered_audio, sampling_frequency)
-
-   % read converted file
-
-%[soundplay,spr] = audioread('filtered_audio.wav');
-
-   % Play sound 
-
-%sound(soundplay,spr);
-
-
+% Write the filtered audio signal back to a file
+%audiowrite('band7.wav', x_sig, freq);
 
 % plot the filtered audio sequence for comparison to the original audio
 figure
@@ -390,9 +345,7 @@ title('Filtered Original Right Channel')
 xlabel('Number of Samples')
 ylabel('Signal Magnitude')
 
- runfile = menu('would you like to run the program again','no','yes');
 
-end
 %% Part 4: Matrix Algebra
 
 % a) (10 points) Using the linear equations in the handout containing the
